@@ -1,0 +1,8 @@
+7d7e3592bf2e52d2bbdb79a9f96af556 *DESCRIPTION
+8b54e5a89fbda3af5e077053d40bec76 *NAMESPACE
+6bc2ee15f90d5a8e4c851c4ab14bb317 *R/CliffDelta.R
+408c7afdecbe74631c6c089e111be998 *R/CohenD.R
+f85ed26cb3e30fffb7f741d5cbf3d1e6 *man/cliff.delta.Rd
+d63355b99c3431ea2f8d7b39d5e5752e *man/cohen.d.Rd
+e7c46daed211179aa658edc991b06d15 *man/effsize-package.Rd
+32a1e97fb42505e0edfcb22fd1650b3a *man/print.effsize.Rd
