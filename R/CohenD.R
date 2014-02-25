@@ -46,11 +46,8 @@ cohen.d.default = function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,
     sd = c(sd,sd(d[f==l]));
   }
   
-  if(paired){
-  	delta.m = mean(d[f==levels(f)[1]] - d[f==levels(f)[1]]);
-  }else{
-  	delta.m = m[1] - m[2];
-  }
+  delta.m = m[1] - m[2];
+  
   if(pooled){
     pool_sd = sqrt(((n1-1)*sd[1]^2+(n2-1)*sd[2]^2)/(n1+n2-2))
     d = (delta.m) / pool_sd;
