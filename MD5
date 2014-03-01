@@ -1,8 +1,9 @@
-6e837ea9b36cb0a7b5f52511fa57f06d *DESCRIPTION
+f365a05860a107de1e0adceb194d4281 *DESCRIPTION
 8b54e5a89fbda3af5e077053d40bec76 *NAMESPACE
-6bc2ee15f90d5a8e4c851c4ab14bb317 *R/CliffDelta.R
-2f6f9d344021b0c3c34523f64b0c1b5b *R/CohenD.R
-f85ed26cb3e30fffb7f741d5cbf3d1e6 *man/cliff.delta.Rd
+7c72869f090c84af0d0db24937bd10cf *R/CliffDelta.R
+6b79938ff6efc9dcb82af89088891b76 *R/CohenD.R
+5b4500e5676d56444ec9eb3e5b907530 *R/printes.R
+9a9bd0f790d899b7450b42d300f74f22 *man/cliff.delta.Rd
 869d679bdd48ac019d73b9dbd9412929 *man/cohen.d.Rd
-c77389db7f99c71f5f5a00cc736f5cf9 *man/effsize-package.Rd
+5cd06d7c4819def8e36281059afeeeff *man/effsize-package.Rd
 32a1e97fb42505e0edfcb22fd1650b3a *man/print.effsize.Rd

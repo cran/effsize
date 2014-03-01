@@ -19,7 +19,7 @@ cohen.d.default = function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,
         f = factor(f)
     }  
     if(length(levels(f))!=2){
-      stop("factor should have only two levels");
+      stop("Factor should have only two levels");
       return;
     }
   }else{
@@ -29,7 +29,6 @@ cohen.d.default = function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,
     d = c(treatment,control)
     f = factor(rep(c("Treatment","Control"),c(length(treatment),length(control))),
                levels=c("Treatment","Control"),ordered=T)
-    
   }
   if(na.rm){
     nas = is.na(d) | is.na(f);
