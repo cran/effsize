@@ -8,7 +8,7 @@ Cliff's Delta effect size for ordinal variables
 }
 \description{
 Computes the Cliff's Delta effect size for ordinal variables
-with the related confidence interval.
+with the related confidence interval using efficient algorithms.
 }
 \usage{
 cliff.delta(treatment, ... )
@@ -26,24 +26,24 @@ cliff.delta(treatment, ... )
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{treatment}{
-numeric vector of data values for the treatment group
+numeric vector or ordered factor of data values for the treatment group (see Details)
 }
   \item{control}{
-numeric vector of data values for the control group
+numeric vector or ordered factor of data values for the control group (see Details)
 }
   \item{conf.level}{
 confidence level of the confidence interval
 }
   \item{use.unbiased}{
-a logical indicating whether compute the delta's variance using the
+a logical indicating whether to compute the delta's variance using the
 "unbiased" estimate formula or the "consistent" estimate
 }
   \item{use.normal}{
 logical indicating whether to use the normal or Student-t distribution
-for the confidence interval computation
+for the confidence interval estimation
 }
   \item{return.dm}{
-logical indicating whether to return the dominance matrix
+logical indicating whether to return the dominance matrix. \strong{Warning}: the explicit computation of the dominance uses a sub-optimal algorithm both in terms of memory and time
 }
   \item{formula}{
     a formula of the form \code{y ~ f}, where \code{y} is a numeric variable giving the data values and \code{f} a factor with two levels giving the corresponding group
@@ -56,7 +56,11 @@ logical indicating whether to return the dominance matrix
   }
 }
 \details{
-Uses the original formula reported in (Cliff 1996)
+Uses the original formula reported in (Cliff 1996).
+
+If the dominance matrix is  required i.e. \code{return.dm=TRUE}) the full matrix is computed thus using the naive algorithm.
+Otherwise, if  \code{treatment} and \code{control} are \code{factor}s then the optimized linear complexity algorithm is used, otherwise the RLE algorithm (with complexity n log n) is used.
+
 }
 \value{
 A list of class \code{effsize} containing the following components:
@@ -82,9 +86,6 @@ Available at: \url{http://www2.sas.com/proceedings/sugi24/Posters/p238-24.pdf}
 }
 \author{
 Marco Torchiano \url{http://softeng.polito.it/torchiano/}
-}
-\note{
-This is is currently still work in progress..
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
