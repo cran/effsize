@@ -45,7 +45,7 @@ logical indicating whether apply the Hedges correction
 confidence level of the confidence interval
 }
   \item{formula}{
-    a formula of the form \code{y ~ f}, where \code{y} is a numeric variable giving the data values and \code{f} a factor with two levels giving the corresponding group
+    a formula of the form \code{y ~ f}, where \code{y} is a numeric variable giving the data values and \code{f} a factor with two levels giving the corresponding groups
   }
   \item{data}{
   an optional matrix or data frame containing the variables in the formula \code{formula}. By default the variables are taken from \code{environment(formula)}.
@@ -88,14 +88,14 @@ The Handbook of Research Synthesis and Meta-Analysis (Cooper, Hedges, & Valentin
 \author{
 Marco Torchiano \url{http://softeng.polito.it/torchiano/}
 }
-\note{
-This is is currently still work in progress..
-}
+%\note{
+%%
+%}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{cliff.delta}}, \code{\link{print.effsize}}
+\code{\link{cliff.delta}}, \code{\link{VD.A}}, \code{\link{print.effsize}}
 }
 \examples{
 treatment = rnorm(100,mean=10)

@@ -7,13 +7,13 @@ cohen.d <- function(d,...) UseMethod("cohen.d")
 
 cohen.d.default = function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,
                    hedges.correction=FALSE,conf.level=0.95, ...){
-  if( ! "numeric" %in% class(d)){
-    stop("First parameter must be numeric")
+  if( ! any(c("numeric","integer") %in% class(d))){
+    stop("First parameter must be a numeric type")
   }
-  if( ("character"%in%class(f)|"factor"%in%class(f))){
+  if( any(c("character","factor") %in% class(f)) ){
     ## it is data and factor
     if(length(f)!=length(d)){
-      stop("Data and factor must be same length")
+      stop("Data and factor must have the same length")
     }
     if( "character" %in% class(f)){
         f = factor(f)
@@ -76,6 +76,7 @@ cohen.d.default = function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,
     d - Z*S_d,
     d + Z*S_d
   );
+  names(conf.int)=c("inf","sup")
   
   levels = c(0.2,0.5,0.8)
   magnitude = c("negligible","small","medium","large")
@@ -113,5 +114,3 @@ cohen.d.formula= function(formula, data=list(), ...){
 # print(eff.d)
 # eff.g = cohen.d(d,f,hedges.correction=TRUE)
 # print(eff.g)
-
-
