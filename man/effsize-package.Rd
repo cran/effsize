@@ -14,12 +14,12 @@ The computation (especially for Cliff's Delta) is carried on with higly efficien
 \tabular{ll}{
 Package: \tab effsize\cr
 Type: \tab Package\cr
-Version: \tab 0.5\cr
+Version: \tab 0.5.1\cr
 Date: \tab 2014-04-05\cr
 License: \tab GPL-2\cr
 URL:  \tab \url{http://softeng.polito.it/software/effsize/} \cr
-      \tab    \url{http://softeng.polito.it/software/effsize/effsize_0.5.pdf} \cr
-      \tab    \url{http://softeng.polito.it/software/effsize/effsize_0.5.tar.gz}
+      \tab    \url{http://softeng.polito.it/software/effsize/effsize_0.5.1.pdf} \cr
+      \tab    \url{http://softeng.polito.it/software/effsize/effsize_0.5.1.tar.gz}
 }
 The main functions are:
 
@@ -37,6 +37,7 @@ The main functions are:
 \item{0.4}{Implemented a new algorithm with improved memory and time complexity. In particular new time complexity is T = O(n1*log(n2)) vs. the previous T = O(n1*n2), and new memory complexity M = O( n1 + n2 ) vs. the previous M = O( n1 * n2). In practice now the computation becomes feasible in a "\emph{reasonable}" time.}
 \item{0.4.1}{Code clean-up and optimization using vectorized binary partioning.}
 \item{0.5}{Added Vargha and Delaney A and fixed minor bugs with Cohen.d.}
+\item{0.5.1}{Modified the Vargha and Delaney A computation to minimize accuracy errors.}
 }
 }
 \author{

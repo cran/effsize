@@ -3,7 +3,10 @@
 # A critique and improvement of the CL common language 
 # effect size statistics of McGraw and Wong. 
 # Journal of Educational and Behavioral Statistics, 25(2):101–132, 2000
-
+#
+# The formula to compute A has been transformed to minimize accuracy errors
+# See: http://mtorchiano.wordpress.com/2014/05/19/effect-size-of-r-precision/
+#
 
 VD.A <- function(d,...) UseMethod("VD.A")
 
@@ -20,13 +23,6 @@ VD.A.default <- function(d,f,...){
       stop("Factor f should have only two levels");
       return;
     }
-#     mask = f==levels(f)[1]
-#     r = sum(rank(d)[mask])
-#     #r = aggregate(rank(d),by=list(f),FUN=sum)[1,2]
-#     m = sum(mask)
-#     n = sum(!mask)
-#     A = (r1/m - (m+1)/2)/n
-    
     tc = split(d,f)
     treatment = tc[[1]]
     control = tc[[2]]
@@ -42,7 +38,10 @@ VD.A.default <- function(d,f,...){
   r1 = sum(r[seq_len(m)])
   
   # Compute the measure
-  A = (r1/m - (m+1)/2)/n
+  # A = (r1/m - (m+1)/2)/n # formula (14) in Vargha and Delaney, 2000
+  A = (2*r1 - m*(m+1)) / (2*n*m) # equivalent formula to avoid accuracy errors
+  # 
+
   
   levels = c(0.147,0.33,0.474) ## effect sizes from Hess and Kromrey, 2004
   magnitude = c("negligible","small","medium","large")

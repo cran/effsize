@@ -1,8 +1,8 @@
 Package: effsize
 Type: Package
 Title: Efficient effect size computation
-Version: 0.5
-Date: 2014-04-15
+Version: 0.5.1
+Date: 2014-05-21
 Author: Marco Torchiano
 Maintainer: Marco Torchiano <marco.torchiano@polito.it>
 Description: This package contains the functions to compute the standardized 
@@ -11,7 +11,7 @@ Description: This package contains the functions to compute the standardized
   with very large data sets.
 URL: http://softeng.polito.it/software/effsize/
 License: GPL-2
-Packaged: 2014-04-15 16:51:44 UTC; mtk
+Packaged: 2014-05-21 10:08:04 UTC; mtk
 NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2014-04-16 00:27:27
+Date/Publication: 2014-05-21 13:27:13
