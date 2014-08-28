@@ -95,6 +95,7 @@ cliff.delta.default <- function( treatment, control, conf.level=.95,
     algorithm="Row partitioning"
     partitions = .bsearch.partition(treatment,control)
     partitions[,2] = n2 - partitions[,2] + 1L
+    partitions[partitions[,1]>n2,1] = n2
     d_i. = partitions %*% c(1L,-1L) / n2
     
     d = mean(d_i.)
@@ -102,6 +103,7 @@ cliff.delta.default <- function( treatment, control, conf.level=.95,
     pa = sum(partitions[,2])
     partitions = .bsearch.partition(control,treatment)
     partitions[,2] = n1 - partitions[,2] + 1L
+    partitions[partitions[,1]>n1,2] = n1
     d_.j = partitions %*% c(-1L,1L) / n1
     
     #     d_.j = rep(NA,n2)
