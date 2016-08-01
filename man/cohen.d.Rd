@@ -65,12 +65,16 @@ In the formula version, if \code{f} is expected to be a factor, if that is not t
 The function computes the value of Cohen's d statistics (Cohen 1988).
 If required (\code{hedges.correction==TRUE}) the Hedges g statistics is computed instead (Hedges and Holkin, 1985).
 
+When \code{paired} is set, the effect size is computed using the
+approach suggested in (Gibbons et al. 1993).
+
+
 The computation of the CI requires the use of non-central Student-t distributions that are used when \code{noncentral==TRUE}; otherwise a central distribution is used.
 
 Also a quantification of the effect size magnitude is performed using the thresholds define in Cohen (1992).
 The magnitude is assessed using the thresholds provided in (Cohen 1992), i.e. |d|<0.2 \code{"negligible"}, |d|<0.5 \code{"small"}, |d|<0.8 \code{"medium"}, otherwise \code{"large"}
 
-The variace of the \code{d} is computed using the conversion formula reportead at page 238 of Cooper et al. (2009):
+The variance of the \code{d} is computed using the conversion formula reported at page 238 of Cooper et al. (2009):
 
 \deqn{ S^2_d = \left( \frac{n_1+n_2}{n_1 n_2} + \frac{d^2}{2 df}\right) \left( \frac{n_1+n_2}{df} \right)}{((n1+n2)/(n1*n2) + .5*d^2/df) * ((n1+n2)/df)}
 
@@ -97,7 +101,11 @@ The Handbook of Research Synthesis and Meta-Analysis (Cooper, Hedges, & Valentin
 
 David C. Howell (2010). Confidence Intervals on Effect Size. Available at: \url{https://www.uvm.edu/\%7Edhowell/methods7/Supplements/Confidence\%20Intervals\%20on\%20Effect\%20Size.pdf}
 
-Cumming, G.; Finch, S. (2001). A primer on the understanding, use, and calculation of confidence intervalsthat are based on central and noncentral distributions. Educational and Psychological Measurement, 61, 633-649.
+Cumming, G.; Finch, S. (2001). A primer on the understanding, use, and calculation of confidence intervals that are based on central and noncentral distributions. Educational and Psychological Measurement, 61, 633-649.
+
+Gibbons, R. D., Hedeker, D. R., & Davis, J. M. (1993). 
+Estimation of effect size from a series of experiments involving paired comparisons. 
+Journal of Educational Statistics, 18, 271-279.
 
 }
 \author{
