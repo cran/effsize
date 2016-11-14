@@ -44,6 +44,7 @@ A list of class \code{effsize} containing the following components:
 \item{magnitude}{a qualitative assessment of the magnitude of effect size}
 \item{method}{the method used, i.e. \code{"Vargha and Delaney A"}}
 }
+
 \references{
 A. Vargha and H. D. Delaney. "A critique and improvement of the CL common language effect size statistics of McGraw and Wong." Journal of Educational and Behavioral Statistics, 25(2):101-132, 2000
 }
