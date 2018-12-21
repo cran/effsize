@@ -1,6 +1,21 @@
 ### Cohen's d test
 library(effsize)
 
+try_with_time_limit <- function(expr, cpu = Inf, elapsed = Inf){
+  y <- try({setTimeLimit(cpu, elapsed); expr}, silent = TRUE) 
+  if(inherits(y, "try-error")) stop("Operation timed out") else y 
+}
+
+
+generate_data <- function(n,m,stdev){
+  x <- rnorm(n,m,stdev)
+  sd.adj = stdev/sd(x)
+  x <- x * sd.adj
+  m.adj = m - mean(x)
+  x <- x + m.adj
+  return(x)
+}
+
 context("Cohen d")
 
 test_that("Two samples with large difference", {
@@ -92,12 +107,6 @@ test_that("Two samples with large negative difference and noncentral", {
 })
 
 
-try_with_time_limit <- function(expr, cpu = Inf, elapsed = Inf)
-{
-  y <- try({setTimeLimit(cpu, elapsed); expr}, silent = TRUE) 
-  if(inherits(y, "try-error")) NULL else y 
-}
-
 # issue #23 noncentral error (infinite loop)
 test_that("Two samples with large negative difference and noncentral", {
   a = c(9.81605624621576, 8.93891560898168, 9.05436620537713, 6.01771305071382, 
@@ -109,3 +118,70 @@ test_that("Two samples with large negative difference and noncentral", {
   res = try_with_time_limit(cohen.d(a,b,hedges.correction = FALSE, noncentral =TRUE),1) 
   expect_equal(as.numeric(res$estimate),0.63236,tolerance = .0001)
 })
+
+
+#issue #27 Cohen.d gives wrong value when data is not arranged by f
+test_that("Order of factor values does not affect result",{
+  set.seed(25)
+  d.data <- data.frame(group = factor(sample(c(1,2), 20, replace = T, prob = c(.33,.67))),
+                       value = rnorm(60,100,15))
+  group1 <- d.data$value[d.data$group==1]
+  group2 <- d.data$value[d.data$group==2]
+  d.data.arranged <- d.data[order(d.data$group),]
+  r1 <- cohen.d(d.data$value ~ d.data$group)
+  r2 <- cohen.d(d.data.arranged$value ~ d.data.arranged$group)
+  
+  expect_equal(as.numeric(r1$estimate),as.numeric(r2$estimate))
+})
+
+#spin-off of issue #27 Cohen.d gives wrong value when data is not arranged by f
+test_that("When inverting control and treatment effsize just change sign",{
+  set.seed(7)
+  group1 <- rnorm(20,100,15)
+  group2 <- rnorm(40,100,15)
+  r1 <- cohen.d(group1,group2)
+  r2 <- cohen.d(group2,group1)
+  
+  expect_equal(r1$estimate,-r2$estimate)
+})
+
+
+# issue #28 confidence interval with non-central distribution for paired data
+test_that("confidence interval with non-central distribution for paired data",{
+  # data from https://www.uvm.edu/%7Edhowell/methods7/Supplements/Confidence%20Intervals%20on%20Effect%20Size.pdf
+  moon.data = c(1.73, 1.06, 2.03, 1.40, 0.95, 1.13, 1.41, 1.73, 1.63, 1.56)
+  g1 = rep(1,length(moon.data))
+  res = effsize::cohen.d(moon.data,g1,
+                   paired = TRUE,
+                   noncentral = TRUE,
+                   conf.level = 0.95
+  )  
+  expect_equal(as.numeric(res$conf.int[1]),0.4907785,tolerance = .000001)
+  expect_equal(as.numeric(res$conf.int[2]),2.3358769,tolerance = .000001)
+})
+
+
+# issue #28 confidence interval with non-central distribution for two samples
+test_that("confidence interval with non-central distribution for two samples",{
+  # data from https://www.uvm.edu/%7Edhowell/methods7/Supplements/Confidence%20Intervals%20on%20Effect%20Size.pdf
+  set.seed(537)
+  hf = generate_data(35,24,sqrt(148.87))
+  nhf = generate_data(29,16.5,sqrt(139.16))
+  
+  res= cohen.d(hf,nhf,noncentral=TRUE)
+
+  expect_equal(as.numeric(res$conf.int[1]),0.117,tolerance = .001)
+  expect_equal(as.numeric(res$conf.int[2]),1.126,tolerance = .001)
+})
+
+
+# issue #?? unpaired noncentral error (infinite loop)
+test_that("Two samples paired formula paired and  noncentral", {
+  data(sleep)
+  res = try_with_time_limit(cohen.d(extra ~ group,
+                                    data = sleep, 
+                                    noncentral =TRUE),1)
+  expect_equal(as.numeric(res$estimate),-0.8321,tolerance = .0001)
+  
+})
+
