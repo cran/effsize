@@ -42,6 +42,15 @@ test_that("Two samples with large difference with Hedges G", {
 })
 
 
+test_that("Two independent samples with Hedges G, example from Borenstein et al, Introduction to Meta-Analysis", {
+  set.seed(321)
+  x1 = generate_data(50,103,5.5)
+  x2 = generate_data(50,100,4.5)
+  eff.g = cohen.d(x1,x2,hedges.correction=TRUE)
+  expect_equal(eff.g$estimate, 0.5924, tolerance=.0001)
+})
+
+
 test_that("Two samples from same population", {
   set.seed(54)
   d <- rnorm(200)
@@ -53,16 +62,16 @@ test_that("Two samples from same population", {
 })
 
 
-test_that("Paired measures", {
-  delta = c(1.73, 1.06, 2.03, 1.40, 0.95, 1.13, 1.41, 1.73, 1.63, 1.56) - 1
-  set.seed(50)
-  a = delta
-  set.seed(50)
-  b = delta + runif(10)
-
-  eff.d = cohen.d(a,b,paired=TRUE)
-  expect_equal(abs(eff.d$estimate),1.42, tolerance=.01)
-})
+# test_that("Paired measures", {
+#   delta = c(1.73, 1.06, 2.03, 1.40, 0.95, 1.13, 1.41, 1.73, 1.63, 1.56) - 1
+#   set.seed(50)
+#   a = delta
+#   set.seed(50)
+#   b = delta + runif(10)
+# 
+#   eff.d = cohen.d(a, b, paired=TRUE)
+#   expect_equal(abs(eff.d$estimate),1.42, tolerance=.01)
+# })
 
 
 test_that("Paired measures w/NA", {
@@ -72,7 +81,7 @@ test_that("Paired measures w/NA", {
   x[4] <- NA
   eff.d = cohen.d(x,y,paired=TRUE,na.rm=TRUE)
   
-  expect_equal(abs(eff.d$estimate),1.73, tolerance=.01)
+  expect_equal(abs(eff.d$estimate),2.8, tolerance=.01)
 })
 
 
@@ -81,17 +90,20 @@ test_that("Paired measures with multiple NA", {
                   c(0.12,0.14,0.18,0.119,NA), 
                   paired = T, na.rm = T)
   
-  expect_equal(abs(eff.d$estimate),1.35, tolerance=.01)
+  expect_equal(abs(eff.d$estimate),1.55, tolerance=.01)
 })
 
 test_that("Non centrality parameter",{
+  # From Confidence Intervals on Effect Size, David C. Howell
+  # Data from: Adams, Wright, and Lohr (1996)
+  
   set.seed(22)
-  a = rnorm(35,24,sqrt(148.87))
-  set.seed(31)
-  b = rnorm(29,16.5,sqrt(139.16))
-  eff.d = cohen.d(a,b,noncentral = TRUE)
-  expect_equal(as.numeric(eff.d$conf.int[1]),0.137,tolerance=0.01)
-  expect_equal(as.numeric(eff.d$conf.int[2]),1.147,tolerance=0.01)
+  Homophobic = generate_data(35,24,sqrt(148.87))
+  Nonhomophobic = generate_data(29,16.5,sqrt(139.16))
+  eff.d = cohen.d(Homophobic, Nonhomophobic, noncentral = TRUE)
+  expect_equal(as.numeric(eff.d$estimate[1]),0.62,tolerance=0.01)
+  expect_equal(as.numeric(eff.d$conf.int[1]),0.117,tolerance=0.001)
+  expect_equal(as.numeric(eff.d$conf.int[2]),1.125,tolerance=0.001)
 })
 
 
@@ -151,7 +163,9 @@ test_that("confidence interval with non-central distribution for paired data",{
   # data from https://www.uvm.edu/%7Edhowell/methods7/Supplements/Confidence%20Intervals%20on%20Effect%20Size.pdf
   moon.data = c(1.73, 1.06, 2.03, 1.40, 0.95, 1.13, 1.41, 1.73, 1.63, 1.56)
   g1 = rep(1,length(moon.data))
-  res = effsize::cohen.d(moon.data,g1,
+#  x2 = seq(1,1.9,by=0.1)
+#  x1 = moon.data+x2
+  res = cohen.d(moon.data,g1,
                    paired = TRUE,
                    noncentral = TRUE,
                    conf.level = 0.95
@@ -184,4 +198,36 @@ test_that("Two samples paired formula paired and  noncentral", {
   expect_equal(as.numeric(res$estimate),-0.8321,tolerance = .0001)
   
 })
+
+# issue #32 paired Hedges correction
+# Using the example from 
+#    Michael Borenstein, L. V. Hedges, J. P. T. Higgins and H. R. Rothstein
+#    Introduction to Meta-Analysis.
+test_that("Two samples paired pooled with Hedges correction", {
+    set.seed(7828)
+    x1 = generate_data(50,103,5.5)
+    d = generate_data(50,3,5.5)
+    x2 = x1 - d
+
+    res.d = cohen.d(x1, x2, paired=TRUE)
+    res.g = cohen.d(x1, x2, paired=TRUE, hedges.correction = TRUE)
+  
+    expect_equal(as.numeric(res.d$estimate),0.4225,tolerance = .0001)
+    expect_equal(as.numeric(res.d$var),0.0131,tolerance = .0001)
+    expect_equal(as.numeric(res.g$estimate),0.4160,tolerance = .0001)
+    expect_equal(as.numeric(res.g$var),0.0127,tolerance = .0001)
+
+})
+
+# from issue #34
+test_that("Two samples paired normal cohen d", {
+ x1 = c(131,124,130,105,102,120,101,120)
+ x2 = c(133,134,129,112,106,125,106,129)
+  
+  res.d = cohen.d(x2, x1, paired=TRUE)
+
+  expect_equal(as.numeric(res.d$estimate),0.422,tolerance = .001)
+})
+
+
 

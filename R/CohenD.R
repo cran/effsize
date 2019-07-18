@@ -70,18 +70,32 @@ cohen.d.default = function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,
   
   delta.m = as.numeric(m[1] - m[2]);
   if(paired){
-    dd = delta.m / sd(diff(d,lag=n1));
+    #    Michael Borenstein, L. V. Hedges, J. P. T. Higgins and H. R. Rothstein
+    #    Introduction to Meta-Analysis.
+    # Formula 4.27
+    s.dif = sd(diff(d,lag=n1))
+    vals = split(d,f)
+    if(s[1]==0 || s[2]==0){
+      r=0;
+    }else{
+      r = cor(vals[[1]],vals[[2]])
+      if(is.na(r)) r = 0;
+    }
+    stdev = s.dif / sqrt(2-2*r)
+    
+    dd = delta.m / stdev;
   }else
   if(pooled){
     # Gibbons, R. D., Hedeker, D. R., & Davis, J. M. (1993). 
     # Estimation of effect size from a series of experiments 
     #    involving paired comparisons. 
     # Journal of Educational Statistics, 18, 271-279.
-    pool_sd = sqrt(((n1-1)*s[1]^2+(n2-1)*s[2]^2)/(n1+n2-2))
-    dd = delta.m / pool_sd;
+    stdev = sqrt(((n1-1)*s[1]^2+(n2-1)*s[2]^2)/(n1+n2-2))
+    dd = delta.m / stdev;
   }else{
     #dd = (delta.m) / sd(d);
-    dd = (delta.m) / s[2]; ## Glass's Delta
+    stdev = sd[2]
+    dd = (delta.m) / stdev; ## Glass's Delta
   }
   df = n1+n2-2
   
@@ -90,9 +104,15 @@ cohen.d.default = function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,
     # Hedges, L. V. & Olkin, I. (1985). 
     # Statistical methods for meta-analysis. 
     # Orlando, FL: Academic Press.
-    dd = dd * (1 - 3 / ( 4 * (n1+n2) - 9))
+    if(paired){
+      J = 1 - 3/(4*(n1 - 1) - 1)
+    }else{
+      J = 1 - 3 / ( 4 * (n1+n2) - 9)
+    }
+    dd = dd * J
     res$method = "Hedges's g"
     res$name = "g"
+    res$J = J
   }else{
     if(pooled){
       res$method = "Cohen's d"
@@ -119,7 +139,7 @@ cohen.d.default = function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,
       t = delta.m/(sd(diff(d,lag=n1))/sqrt(n1))
       df=n1-1
     }else{
-      if(pooled) s = pool_sd
+      if(pooled) s = stdev
       else s = sd(d)
       
       t = delta.m / sqrt(s^2*(1/n1+1/n2))
@@ -157,19 +177,29 @@ cohen.d.default = function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,
         ncp2*sqrt(1/n1+1/n2)
       ));
     }
+    S_d = NA;
   }else{
-    ## Probably the source is incorrect!!
-    ## The Handbook of Research Synthesis and Meta-Analysis 
-    ## (Cooper, Hedges, & Valentine, 2009)
-    ## p 238
-    #S_d = sqrt(((n1+n2)/(n1*n2) + .5*dd^2/df) * ((n1+n2)/df))
-    
-    # Robert J. Grissom and John J. Kim (2005)
-    # Effect size for researchers
-    # Lawrence Erlbaum Associates
-    # Equation 3.13 page 60
-    S_d = sqrt((n1+n2)/(n1*n2) + .5*dd^2/(n1+n2))
-    
+    if(paired){
+      #    Michael Borenstein, L. V. Hedges, J. P. T. Higgins and H. R. Rothstein
+      #    Introduction to Meta-Analysis.
+      # Formula 4.28
+      S_d = sqrt( (1/n1 + dd^2/(2*n1))*(2-2*r) );
+    }else{
+      ## Probably the source is incorrect!!
+      ## The Handbook of Research Synthesis and Meta-Analysis 
+      ## (Cooper, Hedges, & Valentine, 2009)
+      ## p 238
+      #S_d = sqrt(((n1+n2)/(n1*n2) + .5*dd^2/df) * ((n1+n2)/df))
+      
+      # Robert J. Grissom and John J. Kim (2005)
+      # Effect size for researchers
+      # Lawrence Erlbaum Associates
+      # Equation 3.13 page 60
+      S_d = sqrt((n1+n2)/(n1*n2) + .5*dd^2/(n1+n2));
+    }
+    if(hedges.correction){
+      S_d = S_d * J;
+    }
     Z = -qt((1-conf.level)/2,df)
     
     conf.int=c(
@@ -184,12 +214,13 @@ cohen.d.default = function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,
   ## Cohen, J. (1992). A power primer. Psychological Bulletin, 112, 155-159. Crow, E. L. (1991).
   
   res$estimate = dd
+  res$sd = stdev
   res$conf.int = conf.int
-#  res$var = S_d
+  res$var = S_d^2
   res$conf.level = conf.level
   res$magnitude = factor(magnitude[findInterval(abs(dd),mag.levels)+1],levels = magnitude,ordered=T)
-#      variance.estimation = if(use.unbiased){ "Unbiased"}else{"Consistent"},
-#      CI.distribution = if(use.normal){ "Normal"}else{"Student-t"}
+  #      variance.estimation = if(use.unbiased){ "Unbiased"}else{"Consistent"},
+  #      CI.distribution = if(use.normal){ "Normal"}else{"Student-t"}
 
   class(res) <- "effsize"
   return(res)
