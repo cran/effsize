@@ -16,7 +16,7 @@ cohen.d(d, ...)
 \method{cohen.d}{formula}(formula,data=list(),...)
 
 \method{cohen.d}{default}(d,f,pooled=TRUE,paired=FALSE,
-                   na.rm=FALSE, hedges.correction=FALSE,
+                   na.rm=FALSE, mu=0, hedges.correction=FALSE,
                    conf.level=0.95,noncentral=FALSE, ...)
 
 }
@@ -29,7 +29,7 @@ a numeric vector giving either the data values (if \code{f} is a factor) or the 
 either a factor with two levels or a numeric vector of values
 }
   \item{pooled}{
-a logical indicating whether compute pooled standard deviation or the whole sample standard deviation. If \code{pooled=FALSE} (default) pooled sd is used, if \code{pooled=FALSE} the standard deviation of the the control group (the second argument or the one corresponding the the second level of the factor) is used instead.
+a logical indicating whether compute pooled standard deviation or the whole sample standard deviation. If \code{pooled=TRUE} (default) pooled sd is used, if \code{pooled=FALSE} the standard deviation of the the control group (the second argument or the one corresponding the the second level of the factor) is used instead.
 }
   \item{paired}{
 a logical indicating whether to consider the values as paired 
@@ -37,6 +37,9 @@ a logical indicating whether to consider the values as paired
   \item{na.rm}{
 logical indicating whether \code{NA}s should be removed before computation;
 if \code{paired==TRUE} then all incomplete pairs are removed.
+}
+  \item{mu}{
+numeric indicating there reference mean for single sample effect size.
 }
   \item{hedges.correction}{
 logical indicating whether apply the Hedges correction
@@ -65,8 +68,9 @@ In the formula version, if \code{f} is expected to be a factor, if that is not t
 The function computes the value of Cohen's d statistics (Cohen 1988).
 If required (\code{hedges.correction==TRUE}) the Hedges g statistics is computed instead (Hedges and Holkin, 1985).
 
-When \code{paired} is set, the effect size is computed using the
-approach suggested in (Gibbons et al. 1993).
+When \code{paired} is set, the effect size is computed using the approach suggested in (Gibbons et al. 1993).
+
+It is possible to perform a single sample effect size estimation either using a formula \code{~x} or passing \code{f=NA}. 
 
 
 The computation of the CI requires the use of non-central Student-t distributions that are used when \code{noncentral==TRUE}; otherwise a central distribution is used.
@@ -99,7 +103,7 @@ Cohen, J. (1992). A power primer. Psychological Bulletin, 112, 155-159.
 
 The Handbook of Research Synthesis and Meta-Analysis (Cooper, Hedges, & Valentine, 2009)
 
-David C. Howell (2010). Confidence Intervals on Effect Size. Available at: \url{https://www.uvm.edu/\%7Edhowell/methods7/Supplements/Confidence\%20Intervals\%20on\%20Effect\%20Size.pdf}
+David C. Howell (2011). Confidence Intervals on Effect Size. Available at: \url{https://www.uvm.edu/~statdhtx/methods8/Supplements/MISC/Confidence\%20Intervals\%20on\%20Effect\%20Size.pdf}
 
 Cumming, G.; Finch, S. (2001). A primer on the understanding, use, and calculation of confidence intervals that are based on central and noncentral distributions. Educational and Psychological Measurement, 61, 633-649.
 
