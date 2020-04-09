@@ -8,9 +8,6 @@ cohen.d <- function(d,...) UseMethod("cohen.d")
 cohen.d_single <- function(x,mu=0,na.rm=FALSE,
                            hedges.correction=FALSE,conf.level=0.95,
                            noncentral=FALSE){
-  if(noncentral){
-    stop("Non-central CI not implemented for single sample.")
-  }
   if(na.rm){
     x <- x[!is.na(x)]
   }
@@ -40,10 +37,23 @@ cohen.d_single <- function(x,mu=0,na.rm=FALSE,
   }
   Z = -qt((1-conf.level)/2,df)
   
-  conf.int=c(
-    dd - Z*S_d,
-    dd + Z*S_d
-  );
+  if(noncentral){
+    t = delta.m/(s/sqrt(n))
+    df=n-1
+    
+    ncp = compute_ncp(t,df,conf.level)
+
+    conf.int=c(
+      ncp[1]/sqrt(df),
+      ncp[2]/sqrt(df)
+    );
+    
+  }else{
+    conf.int=c(
+      dd - Z*S_d,
+      dd + Z*S_d
+    );
+  }
 
   names(conf.int)=c("lower","upper")
   
@@ -54,7 +64,7 @@ cohen.d_single <- function(x,mu=0,na.rm=FALSE,
   res$estimate = dd
   res$mu = mu
   res$sd = s
-  res$conf.int = conf.int
+  res$conf.int = sort( conf.int )
   res$var = S_d^2
   res$conf.level = conf.level
   res$magnitude = factor(magnitude[findInterval(abs(dd),mag.levels)+1],levels = magnitude,ordered=T)
@@ -66,7 +76,8 @@ cohen.d_single <- function(x,mu=0,na.rm=FALSE,
 }
 
 cohen.d.default <- function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,mu=0,
-                   hedges.correction=FALSE,conf.level=0.95,noncentral=FALSE, ...){
+                   hedges.correction=FALSE,conf.level=0.95,noncentral=FALSE, 
+                   within=TRUE, subject=NA, ...){
   if( is.factor(d) ){
     stop("First parameter is a factor: consider using a different effect size, e.g., cliff.delta")
   }
@@ -74,7 +85,7 @@ cohen.d.default <- function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,mu=0,
     stop("First parameter must be a numeric type")
   }
   if(length(f) == 1 && is.na(f)){ ## single sample
-    return( cohen.d_single(d,mu=mu,na.rm=na.rm,hedges.correction=hedges.correction,conf.level=conf.level) );
+    return( cohen.d_single(d,mu=mu,na.rm=na.rm,hedges.correction=hedges.correction,conf.level=conf.level,noncentral = noncentral) );
   }
   if( any(c("character","factor") %in% class(f)) ){
     ## it is data and factor
@@ -92,13 +103,29 @@ cohen.d.default <- function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,mu=0,
         return;
       }
     }
+    if(all(!is.na(subject))){
+      ord = order(subject)
+      d <- d[ord];
+      f <- f[ord];
+      subject <- subject[ord];
+      subjects = split(subject,f);
+      if(length(subjects[[1]]) != length(subjects[[2]])
+         || any(subjects[[1]]!=subjects[[2]])){
+        stop("The subjects in the two groups of a paired effect size must be the same.")
+      }
+    }
+    d <- d[order(f)];
+    f <- f[order(f)];
   }else{
     ## it is treatment and control
+    if(!is.na(subject)){
+      warning("subject is not used if treatment and control are provided");
+    }
     treatment = d
     control = f
     d = c(treatment,control)
     f = factor(rep(c("Treatment","Control"),c(length(treatment),length(control))),
-               levels=c("Treatment","Control"),ordered=T)
+               levels=c("Treatment","Control"),ordered=TRUE)
   }
   
   if(na.rm){
@@ -132,18 +159,23 @@ cohen.d.default <- function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,mu=0,
       return;
     }
     
-    #    Michael Borenstein, L. V. Hedges, J. P. T. Higgins and H. R. Rothstein
-    #    Introduction to Meta-Analysis.
-    # Formula 4.27
     s.dif = sd(diff(d,lag=n1))
-    vals = split(d,f)
-    if(s[1]==0 || s[2]==0){
-      r=0;
+    if(within){
+      vals = split(d,f)
+      if(s[1]==0 || s[2]==0){
+        r=0;
+      }else{
+        r = cor(vals[[1]],vals[[2]])
+        if(is.na(r)) r = 0;
+      }
+      stdev = s.dif / sqrt(2-2*r)
+      #    Michael Borenstein, L. V. Hedges, J. P. T. Higgins and H. R. Rothstein
+      #    Introduction to Meta-Analysis.
+      # Formula 4.27
     }else{
-      r = cor(vals[[1]],vals[[2]])
-      if(is.na(r)) r = 0;
+      r = 0.5
+      stdev = s.dif
     }
-    stdev = s.dif / sqrt(2-2*r)
   }else
   if(pooled){
     # Gibbons, R. D., Hedeker, D. R., & Davis, J. M. (1993). 
@@ -206,37 +238,40 @@ cohen.d.default <- function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,mu=0,
       
       t = delta.m / sqrt(s^2*(1/n1+1/n2))
     }
-    st = max(0.1,abs(t))
-    end1 = t
-    while( pt(q=t,df=df,ncp=end1) > (1-conf.level)/2 ){
-      #end1 = end1 * 2
-      end1 <- end1 + st
-    }
-    ncp1 = uniroot(function(x) (1-conf.level)/2-pt(q=t,df=df,ncp=x),
-                   c(2*t-end1,end1))$root
     
-    end2 = t
-    while( pt(q=t,df=df,ncp=end2) < (1+conf.level)/2 ){
-      #end2 = end2 * 2
-      end2 <- end2 - st
-    }
-    #cat("t: ",t,"  df:",df,"\n")
-    #       cat("-5 -> ",pt(q=t,df=df,ncp=-5),"\n")
-    #       cat(end2," -> ",pt(q=t,df=df,ncp=end2),"\n")
-    ncp2 = uniroot(function(x) (1+conf.level)/2-pt(q=t,df=df,ncp=x),
-                   c(end2,2*t-end2))$root
-    #cat("ncp1:",ncp1,"\n")
-    #cat("ncp2:",ncp2,"\n")
+    # st = max(0.1,abs(t))
+    # end1 = t
+    # while( pt(q=t,df=df,ncp=end1) > (1-conf.level)/2 ){
+    #   #end1 = end1 * 2
+    #   end1 <- end1 + st
+    # }
+    # ncp1 = uniroot(function(x) (1-conf.level)/2-pt(q=t,df=df,ncp=x),
+    #                c(2*t-end1,end1))$root
+    # 
+    # end2 = t
+    # while( pt(q=t,df=df,ncp=end2) < (1+conf.level)/2 ){
+    #   #end2 = end2 * 2
+    #   end2 <- end2 - st
+    # }
+    # #cat("t: ",t,"  df:",df,"\n")
+    # #       cat("-5 -> ",pt(q=t,df=df,ncp=-5),"\n")
+    # #       cat(end2," -> ",pt(q=t,df=df,ncp=end2),"\n")
+    # ncp2 = uniroot(function(x) (1+conf.level)/2-pt(q=t,df=df,ncp=x),
+    #                c(end2,2*t-end2))$root
+    # #cat("ncp1:",ncp1,"\n")
+    # #cat("ncp2:",ncp2,"\n")
+    
+    ncp = compute_ncp(t,df,conf.level)
     
     if(paired){
       conf.int=sort(c(
-        ncp1/sqrt(df),
-        ncp2/sqrt(df)
+        ncp[1]/sqrt(df),
+        ncp[2]/sqrt(df)
       ));
     }else{
       conf.int=sort(c(
-        ncp1*sqrt(1/n1+1/n2),
-        ncp2*sqrt(1/n1+1/n2)
+        ncp[1]*sqrt(1/n1+1/n2),
+        ncp[2]*sqrt(1/n1+1/n2)
       ));
     }
     S_d = NA;
@@ -289,10 +324,35 @@ cohen.d.default <- function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,mu=0,
 }
 
 cohen.d.formula= function(formula, data=list(), ...){
-  if (length(formula) == 2 & length(all.vars(formula)) == 1) { # single sample 
+  if (length(all.vars(formula))==1 || is.numeric(formula[[3]]) || formula[[3]]=="." ) { # single sample 
     x =  eval(formula[[2]], data)
     res = cohen.d.default(x,NA,...)
   }else{
+    subject = NA
+    paired=list(...)$paired
+    if(!is.null(paired) && paired ){
+      ## Check if using formula structure as 'value ~ treatment | Subject(id)'
+      # ~
+      # ...
+      # call |
+      #      ...
+      #      call Subject
+      #           id
+      if(is.call(formula[[3]]) && formula[[3]][[1]]=="|" &&
+         is.call(formula[[3]][[3]]) && formula[[3]][[3]][[1]] == "Subject"
+      ) {
+        id = formula[[3]][[3]][[2]]
+        subject = eval(id,data)
+
+        ## remove Subject from formula
+        formula[[3]] = formula[[3]][[2]]
+      }else{
+        warning(paste("Trying to compute paired samples Cohen's d using formula input.",
+                      "Results may be incorrect if cases do not appear in the same order for both levels of the grouping factor.",
+                      "Use the format 'value ~ treatment | Subject(id)' to specify a subject id variable."))
+      }
+    }
+    
     mf <- model.frame(formula=formula, data=data)
     if(dim(mf)[2]!=2){
       stop("Formula must be a variable vs a factor")
@@ -302,11 +362,37 @@ cohen.d.formula= function(formula, data=list(), ...){
     if( ! any(c("character","factor") %in% class(f)) ){
       warning("Cohercing rhs of formula to factor")
       f = factor(f)
-    }  
-    res = cohen.d.default(d,f,...)
+    }
+    res = cohen.d.default(d,f,subject=subject,...)
   }
   return(res)
 }
+
+compute_ncp <- function(t,df,conf.level){
+  st = max(0.1,abs(t))
+  end1 = t
+  while( pt(q=t,df=df,ncp=end1) > (1-conf.level)/2 ){
+    #end1 = end1 * 2
+    end1 <- end1 + st
+  }
+  ncp1 = uniroot(function(x) (1-conf.level)/2-pt(q=t,df=df,ncp=x),
+                 c(2*t-end1,end1))$root
+  
+  end2 = t
+  while( pt(q=t,df=df,ncp=end2) < (1+conf.level)/2 ){
+    #end2 = end2 * 2
+    end2 <- end2 - st
+  }
+  #cat("t: ",t,"  df:",df,"\n")
+  #       cat("-5 -> ",pt(q=t,df=df,ncp=-5),"\n")
+  #       cat(end2," -> ",pt(q=t,df=df,ncp=end2),"\n")
+  ncp2 = uniroot(function(x) (1+conf.level)/2-pt(q=t,df=df,ncp=x),
+                 c(end2,2*t-end2))$root
+  #cat("ncp1:",ncp1,"\n")
+  #cat("ncp2:",ncp2,"\n")
+  return ( c(ncp1=ncp1,ncp2=ncp2) )
+}
+
 
 # set.seed(52)
 # x = rnorm(100,mean=10)
