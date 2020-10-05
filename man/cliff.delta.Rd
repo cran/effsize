@@ -82,7 +82,7 @@ Norman Cliff (1996). Ordinal methods for behavioral data analysis. Routledge.
 J. Romano, J. D. Kromrey, J. Coraggio, J. Skowronek, Appropriate statistics for ordinal level data: Should we really be using t-test and cohen's d for evaluating group differences on the NSSE and other surveys?, in: Annual meeting of the Florida Association of Institutional Research, 2006.
 
 K.Y. Hogarty and J.D.Kromrey (1999). Using SAS to Calculate Tests of Cliff's Delta. Proceedings of the Twenty-Foursth Annual SAS User Group International Conference, Miami Beach, Florida, p 238.
-Available at: \url{http://www2.sas.com/proceedings/sugi24/Posters/p238-24.pdf}
+Available at: \url{https://support.sas.com/resources/papers/proceedings/proceedings/sugi24/Posters/p238-24.pdf}
 }
 \author{
 Marco Torchiano \url{http://softeng.polito.it/torchiano/}

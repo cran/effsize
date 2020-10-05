@@ -81,7 +81,7 @@ cliff.delta.default <- function( d, f, conf.level=.95,
         }
       }else{
         stop("Factor should have exactly two effective levels");
-        return;
+        return();
       }
     tc = split(d,f)
     treatment = tc[[1]]

@@ -100,7 +100,7 @@ cohen.d.default <- function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,mu=0,
         warning("Factor with multiple levels, using only the two actually present in data");
       }else{
         stop("Factor should have only two levels");
-        return;
+        return();
       }
     }
     if(all(!is.na(subject))){
@@ -156,7 +156,7 @@ cohen.d.default <- function(d,f,pooled=TRUE,paired=FALSE,na.rm=FALSE,mu=0,
   if( paired ){
     if( n1 != n2 ){
       stop("Paired computation requires equal number of measures.");
-      return;
+      return();
     }
     
     s.dif = sd(diff(d,lag=n1))
@@ -390,7 +390,7 @@ compute_ncp <- function(t,df,conf.level){
                  c(end2,2*t-end2))$root
   #cat("ncp1:",ncp1,"\n")
   #cat("ncp2:",ncp2,"\n")
-  return ( c(ncp1=ncp1,ncp2=ncp2) )
+  return( c(ncp1=ncp1,ncp2=ncp2) )
 }
 
 

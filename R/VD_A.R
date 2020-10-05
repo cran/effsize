@@ -21,7 +21,7 @@ VD.A.default <- function(d,f,...){
     }  
     if(length(levels(f))!=2){
       stop("Factor f should have only two levels");
-      return;
+      return();
     }
     tc = split(d,f)
     treatment = tc[[1]]
